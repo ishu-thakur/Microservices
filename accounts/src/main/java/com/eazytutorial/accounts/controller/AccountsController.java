@@ -7,6 +7,7 @@ import com.eazytutorial.accounts.service.client.LoansFeignClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +49,7 @@ public class AccountsController {
     }
 
     @PostMapping("/CustomerDetails")
+    @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "myCustomerDetailsFallBack")
      public CustomerDetails getCustomerDetails(@RequestBody Customer customer)
         {
             Accounts customerAccount = repo.findByCustomerId(customer.getCustomerId());
@@ -57,6 +59,19 @@ public class AccountsController {
             customerDetails.setAccounts(customerAccount);
             customerDetails.setLoans(loansDetails);
 
+            return customerDetails;
+        }
+
+        private CustomerDetails myCustomerDetailsFallBack(Customer customer, Throwable throwable)
+        {
+            Accounts customerAccount = repo.findByCustomerId(customer.getCustomerId());
+//            beacuse i am failling the loans so dont need to create loans as i want to return only
+//            accounts details in my fall back method
+//            List<Loans> loansDetails = loansFeignClient.getLoansDetails(customer);
+
+            CustomerDetails customerDetails = new CustomerDetails();
+            customerDetails.setAccounts(customerAccount);
+//            customerDetails.setLoans(loansDetails);
             return customerDetails;
         }
 
