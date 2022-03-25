@@ -1,0 +1,3 @@
+we are using configserver to read the configuration from deferent locations like from file system , from classpath , from git repo
+
+also we use @EnableConfigServer  annotatin in application class

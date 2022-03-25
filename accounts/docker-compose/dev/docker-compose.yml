@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  configserver:
+    container_name: configserver
+    image: configserver:latest
+#    mem_limit: 700m
+    ports:
+      - "8081:8081"
+    networks:
+      - eazybank
+  accounts:
+    image: accounts:latest
+#    mem_limit: 700m
+    ports:
+      - "8001:8001"
+    networks:
+      - eazybank
+    depends_on:
+      - configserver
+    deploy:                     # this is for accounts
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
+
+  loans:
+    image: loans:latest
+#    mem_limit: 700m
+    ports:
+      - "8002:8002"
+    networks:
+      - eazybank
+    depends_on:
+      - configserver
+    deploy:                     # this is for accounts
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/              
+
+networks:
+  eazybank:                  

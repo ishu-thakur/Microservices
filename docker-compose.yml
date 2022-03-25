@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  accounts:
+    image: ishuthakur/accounts:latest
+#    mem_limit: 700m
+    ports:
+      - "8001:8001"
+    networks:
+      - ishuthakur-udemy
+
+  loans:
+    image: ishuthakur/loans:latest
+#    mem_limit: 700m
+    ports:
+      - "8002:8002"
+    networks:
+      - ishuthakur-udemy
+
+networks:
+  ishuthakur-udemy:
+
