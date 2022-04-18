@@ -1,5 +1,12 @@
 version: "3.8"
 services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - eazybank
+
   configserver:
     container_name: configserver
     image: ishuthakur/configserver:latest
@@ -8,6 +15,12 @@ services:
       - "8081:8081"
     networks:
       - eazybank
+    depends_on:
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
   eurekaserver:
     image: ishuthakur/eurekaserver:latest
 #    mem_limit: 700m
@@ -26,6 +39,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
 
   accounts:
     image: ishuthakur/accounts:latest
@@ -47,7 +61,7 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
-
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
 
   loans:
     image: ishuthakur/loans:latest
@@ -69,5 +83,7 @@ services:
       SPRING_PROFILES_ACTIVE: default
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8081/
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
 networks:
   eazybank:                  
